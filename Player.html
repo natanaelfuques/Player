@@ -730,11 +730,10 @@ async function buildWF(url, deckId){
     if(deckId)drawWF(document.getElementById('wfCanvas'+deckId),url,D[deckId]?.audio()?.currentTime||0,D[deckId]?.audio()?.duration||0,D[deckId]?.isPlaying);
     return wfCache[url];
   }
+  // Mostra "Analisando…"
   if(deckId){const ld=document.getElementById('wfLoad'+deckId);if(ld)ld.classList.add('visible');}
   const attempt=async()=>{
-    // Usa getBufFromUrl com fallback para IndexedDB — mesmo mecanismo do scanSilence
-    const buf=await getBufFromUrl(url);
-    if(!buf)throw new Error('sem buffer');
+    const buf=await(await fetch(url)).arrayBuffer();
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
     const dec=await ctx.decodeAudioData(buf);ctx.close();
     const ch=dec.getChannelData(0),peaks=new Float32Array(WF_BARS),step=Math.floor(ch.length/WF_BARS);
@@ -743,19 +742,10 @@ async function buildWF(url, deckId){
     const mx2=Math.max(...peaks,0.001);for(let i=0;i<WF_BARS;i++)peaks[i]/=mx2;
     return peaks;
   };
-  // Tenta até 6 vezes com intervalos crescentes (até ~30s no total)
-  // Continua mesmo com a música tocando
-  const delays=[500,1500,3000,5000,10000,15000];
   let peaks=null;
-  for(let t=0;t<delays.length;t++){
+  for(let t=0;t<3;t++){
     try{peaks=await attempt();break;}
-    catch(e){
-      if(t<delays.length-1){
-        await new Promise(r=>setTimeout(r,delays[t]));
-        // Aborta se a URL já não é mais a faixa atual deste deck
-        if(deckId&&D[deckId]?.currentUrl!==url)break;
-      }
-    }
+    catch(e){if(t<2)await new Promise(r=>setTimeout(r,800*(t+1)));}
   }
   if(deckId){const ld=document.getElementById('wfLoad'+deckId);if(ld)ld.classList.remove('visible');}
   if(peaks){
@@ -1012,8 +1002,8 @@ class Deck{
       row.innerHTML=`<span class="drag-handle">${handleSVG}</span><span class="track-num">${isCurrent&&this.isPlaying?'<svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>':i+1}</span><span class="track-row-name">${t.nome}</span><span class="track-dur">${t.duracao||'--:--'}</span><button class="track-remove" onclick="event.stopPropagation();D.${this.id}.removerFaixa('${t.id}')"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
       row.onclick=()=>{ this.navIndex=i; this.renderPlaylist(); const r=document.getElementById('tList'+this.id).querySelectorAll('.track-row'); if(r[i])r[i].scrollIntoView({block:'nearest'}); };
       row.ondblclick=()=>this.tocarFaixa(i);
-      row.addEventListener('dragstart',e=>{dragSrcIdx=i;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
-      row.addEventListener('dragend',()=>{dragSrcIdx=null;list.querySelectorAll('.track-row').forEach(r=>r.classList.remove('dragging','drag-over'));});
+      row.addEventListener('dragstart',e=>{dragSrcIdx=i;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('trackId',t.id);e.dataTransfer.setData('srcMomentoId',m.id);});
+      row.addEventListener('dragend',()=>{dragSrcIdx=null;list.querySelectorAll('.track-row').forEach(r=>r.classList.remove('dragging','drag-over'));document.querySelectorAll('.momento-btn').forEach(b=>b.classList.remove('drag-over-momento'));});
       row.addEventListener('dragover',e=>{e.preventDefault();if(dragSrcIdx!==null&&dragSrcIdx!==i){list.querySelectorAll('.track-row').forEach(r=>r.classList.remove('drag-over'));row.classList.add('drag-over');}});
       row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));
       row.addEventListener('drop',e=>{
@@ -1315,10 +1305,26 @@ function renderMomentos(){
     btn.addEventListener('dblclick',e=>{e.stopPropagation();clearTimeout(_t);abrirModalEditar(m.id);});
     btn.addEventListener('dragstart',e=>{dragSrcIdx=i;btn.classList.add('dragging-momento');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('momentoId',m.id);});
     btn.addEventListener('dragend',()=>{dragSrcIdx=null;list.querySelectorAll('.momento-btn').forEach(b=>b.classList.remove('dragging-momento','drag-over-momento'));document.querySelectorAll('.drag-over-deck').forEach(el=>el.classList.remove('drag-over-deck'));});
-    btn.addEventListener('dragover',e=>{e.preventDefault();if(dragSrcIdx!==null&&dragSrcIdx!==i){list.querySelectorAll('.momento-btn').forEach(b=>b.classList.remove('drag-over-momento'));btn.classList.add('drag-over-momento');}});
+    btn.addEventListener('dragover',e=>{e.preventDefault();const hasTrack=e.dataTransfer.types.includes('trackid');const hasMomento=dragSrcIdx!==null&&dragSrcIdx!==i;if(hasTrack||hasMomento){list.querySelectorAll('.momento-btn').forEach(b=>b.classList.remove('drag-over-momento'));btn.classList.add('drag-over-momento');}});
     btn.addEventListener('dragleave',()=>btn.classList.remove('drag-over-momento'));
     btn.addEventListener('drop',e=>{
-      e.preventDefault();if(dragSrcIdx===null||dragSrcIdx===i)return;
+      e.preventDefault();
+      const trackId=e.dataTransfer.getData('trackId');
+      const srcMomentoId=e.dataTransfer.getData('srcMomentoId');
+      // Drop de FAIXA: copia para este momento (mantém no original)
+      if(trackId&&srcMomentoId&&srcMomentoId!==m.id){
+        const srcMomento=momentos.find(x=>x.id===srcMomentoId);
+        if(!srcMomento)return;
+        const track=srcMomento.tracks.find(t=>t.id===trackId);
+        if(!track)return;
+        if(m.tracks.some(t=>t.id===trackId))return; // evita duplicata
+        m.tracks.push({...track});
+        salvarMomentos();renderMomentos();
+        ['A','B'].forEach(dk=>{if(D[dk]&&D[dk].momentoAtivo===m.id)D[dk].renderPlaylist();});
+        return;
+      }
+      // Drop de MOMENTO: reordena na sidebar
+      if(dragSrcIdx===null||dragSrcIdx===i)return;
       const moved=momentos.splice(dragSrcIdx,1)[0];
       momentos.splice(i,0,moved);
       salvarMomentos();renderMomentos();
