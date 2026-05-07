@@ -539,13 +539,31 @@
 
     /* Controls: duas linhas no mobile */
     .controls {
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
       gap:4px;
+      align-items:center;
     }
-    .volume-wrap { margin-left:0; margin-top:4px; width:100%; }
-    .fade-wrap { margin-left:0; margin-top:0; padding-left:8px; border-left:1px solid var(--border); }
-    input[type=range] { width:50px; }
+    /* Volume + Fade + Silêncio: tudo na mesma linha à direita dos botões */
+    .volume-wrap {
+      margin-left:auto;
+      margin-top:0;
+      width:auto;
+      gap:3px;
+      flex-shrink:1;
+    }
+    .fade-wrap {
+      margin-left:0;
+      margin-top:0;
+      padding-left:6px;
+      border-left:1px solid var(--border);
+      gap:3px;
+    }
+    .fade-label { font-size:9px; }
+    input[type=range]#volA, input[type=range]#volB { width:52px; }
     #fadeA, #fadeB { width:36px !important; }
+    /* Botões menores no mobile */
+    .ctrl-btn { width:26px; height:26px; border-radius:6px; }
+    .play-btn { width:36px; height:36px; border-radius:9px; }
 
     /* Playlist area */
     .playlist-area { padding:8px 12px; }
@@ -719,7 +737,7 @@
       <span class="xfader-deck-lbl" id="xfLabelA" onclick="document.getElementById('xfader').value=0;onXfader(0);selecionarDeck('A')">A</span>
       <div class="xfader-h-track">
         <div class="xfader-h-tick"></div>
-        <input type="range" class="xfader-h" id="xfader" min="0" max="100" value="50" oninput="onXfader(this.value)" ondblclick="this.value=50;onXfader(50)">
+        <input type="range" class="xfader-h" id="xfader" min="0" max="100" value="0" oninput="onXfader(this.value)" ondblclick="this.value=50;onXfader(50)">
       </div>
       <span class="xfader-deck-lbl" id="xfLabelB" onclick="document.getElementById('xfader').value=100;onXfader(100);selecionarDeck('B')">B</span>
     </div>
@@ -1687,7 +1705,7 @@ async function init(){
   momentos.forEach(m=>m.tracks.forEach(t=>{if(objectUrls[t.id])buildWF(objectUrls[t.id]);}));
 
   // Init xfader labels
-  onXfader(50);
+  onXfader(0);
 
   // Setas do teclado controlam o fader globalmente
   let momentoMode = false; // M key toggles navigation focus to sidebar
