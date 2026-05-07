@@ -16,7 +16,9 @@
     --blue: #4A9EC8; --blue-dim: rgba(74,158,200,0.15); --blue-glow: rgba(74,158,200,0.4);
     --text: #e8e8e8; --muted: #666; --danger: #c0392b;
   }
-  * { margin:0; padding:0; box-sizing:border-box; cursor:pointer; }
+  * { margin:0; padding:0; box-sizing:border-box; cursor:pointer; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; }
+  html { -webkit-tap-highlight-color:transparent; }
+  button, a, input, select, textarea, [role="button"] { -webkit-tap-highlight-color:transparent; outline:none; }
   body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
 
   header { display:flex; align-items:center; justify-content:space-between; padding:11px 22px; border-bottom:1px solid var(--border); flex-shrink:0; }
@@ -374,6 +376,191 @@
   ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   input[type=file] { display:none; }
 
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 700px) {
+
+    /* Mobile body: allow scroll */
+    body { height:auto; min-height:100vh; overflow-y:auto; overflow-x:hidden; }
+    header { flex-shrink:0; }
+    .logo-main { font-size:1.1rem; }
+    .logo-sub { font-size:0.55rem; }
+    .header-date-main { font-size:14px; }
+    .header-date-sub { font-size:9px; }
+    #pwa-install-btn { padding:3px 7px; font-size:10px; }
+
+    /* Compressor bar compacto: só toggle + GR */
+    #compBar { padding:5px 12px; gap:10px; }
+    .comp-gr-bar { width:55px; }
+    .comp-gr-label, .comp-gr-val { font-size:.58rem; }
+    .comp-settings-btn { padding:3px 5px; }
+
+    /* CompSettings: wrap em grid 2 colunas */
+    #compSettings { padding:6px 12px; gap:10px; }
+    #compSettings .comp-param { flex-direction:column; align-items:flex-start; gap:3px; }
+    .comp-slider { width:100%; }
+
+    /* App body: empilhado verticalmente */
+    .app-body {
+      display:flex;
+      flex-direction:column;
+      overflow-y:auto;
+      overflow-x:hidden;
+      height:auto;
+      min-height:0;
+      flex:1;
+    }
+
+    /* Sidebar: horizontal scrollável no topo */
+    aside {
+      grid-column:unset;
+      grid-row:unset;
+      border-right:none;
+      border-bottom:1px solid var(--border);
+      padding:8px 0 6px;
+      flex-direction:column;
+      overflow-y:visible;
+      overflow-x:hidden;
+      flex-shrink:0;
+    }
+    .sidebar-label { padding:0 12px 6px; font-size:9px; }
+    #momentosList {
+      display:flex;
+      flex-direction:row;
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding:0 12px;
+      gap:4px;
+      scrollbar-width:none;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+    }
+    #momentosList::-webkit-scrollbar { display:none; }
+    .momento-btn {
+      flex-direction:row;
+      align-items:center;
+      gap:7px;
+      padding:6px 10px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      white-space:nowrap;
+      font-size:10px;
+      flex-shrink:0;
+      scroll-snap-align:start;
+      min-width:0;
+    }
+    .momento-btn.active-a { border-color:var(--gold); }
+    .momento-btn.active-b { border-color:var(--blue); }
+    .momento-btn::before { display:none; }
+    .momento-info { display:block; }
+    .deck-badges { display:none; }
+    .momento-icon { width:24px; height:24px; border-radius:6px; }
+    .sidebar-action-row {
+      display:flex;
+      gap:6px;
+      padding:6px 12px 2px;
+    }
+    .add-momento { margin:0; flex:1; padding:5px; font-size:10px; }
+
+    /* Decks: headers viram abas */
+    .deck-hdr-a, .deck-hdr-b {
+      grid-column:unset;
+      grid-row:unset;
+    }
+    .deck-hdr { padding:7px 12px; }
+    .deck-label { font-size:14px; letter-spacing:2px; }
+
+    /* Crossfader: compacto — aparece acima dos decks no mobile */
+    .xfader-bar-h {
+      grid-column:unset;
+      grid-row:unset;
+      padding:18px 0;
+      order:-1;
+    }
+    .xfader-h-track { width:160px; }
+
+    /* Decks lado a lado em tabs */
+    .deck-col-a, .deck-col-b {
+      grid-column:unset;
+      grid-row:unset;
+      border-right:none;
+      border-top:none !important;
+    }
+
+    /* Sistema de abas para os decks no mobile */
+    .mobile-deck-tabs {
+      display:flex;
+      border-bottom:1px solid var(--border);
+      flex-shrink:0;
+    }
+    .mobile-tab-btn {
+      flex:1;
+      padding:8px;
+      background:transparent;
+      border:none;
+      border-bottom:2px solid transparent;
+      color:var(--muted);
+      font-family:'Bebas Neue',sans-serif;
+      font-size:15px;
+      letter-spacing:3px;
+      cursor:pointer;
+      transition:all 0.2s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
+    .mobile-tab-btn .deck-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+    .mobile-tab-btn.tab-active-a { color:var(--gold); border-bottom-color:var(--gold); }
+    .mobile-tab-btn.tab-active-a .deck-dot { background:var(--gold); box-shadow:0 0 5px var(--gold-glow); }
+    .mobile-tab-btn.tab-active-b { color:var(--blue); border-bottom-color:var(--blue); }
+    .mobile-tab-btn.tab-active-b .deck-dot { background:var(--blue); box-shadow:0 0 5px var(--blue-glow); }
+    .mobile-tab-btn.playing-a { color:var(--gold); }
+    .mobile-tab-btn.playing-a .deck-dot { background:var(--gold); box-shadow:0 0 5px var(--gold-glow); animation:pulse 1.5s infinite; }
+    .mobile-tab-btn.playing-b { color:var(--blue); }
+    .mobile-tab-btn.playing-b .deck-dot { background:var(--blue); box-shadow:0 0 5px var(--blue-glow); animation:pulseBlue 1.5s infinite; }
+
+    .mobile-deck-wrap {
+      display:none;
+      flex-direction:column;
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+    }
+    .mobile-deck-wrap.active { display:flex; }
+
+    /* Player área no mobile */
+    .player { padding:8px 12px 7px; }
+    .track-info { gap:8px; margin-bottom:7px; }
+    .track-thumb { width:32px; height:32px; border-radius:7px; }
+    .track-name { font-size:11px; }
+    .track-sub { font-size:9px; }
+    .waveform-wrap { height:38px; margin-bottom:5px; }
+    .progress-wrap { margin-bottom:7px; }
+
+    /* Controls: duas linhas no mobile */
+    .controls {
+      flex-wrap:wrap;
+      gap:4px;
+    }
+    .volume-wrap { margin-left:0; margin-top:4px; width:100%; }
+    .fade-wrap { margin-left:0; margin-top:0; padding-left:8px; border-left:1px solid var(--border); }
+    input[type=range] { width:50px; }
+    #fadeA, #fadeB { width:36px !important; }
+
+    /* Playlist area */
+    .playlist-area { padding:8px 12px; }
+    .playlist-header { margin-bottom:7px; }
+    .playlist-title { font-size:12px; }
+    .action-btn { padding:3px 7px; font-size:9px; }
+    .drop-zone { padding:14px; }
+    .track-row { padding:5px 5px; gap:5px; }
+    .track-row-name { font-size:10px; }
+
+    /* Oculta headers originais dos decks (viram tabs) */
+    .deck-hdr-a, .deck-hdr-b { display:none !important; }
+  }
+
+
   /* MODALS */
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); display:flex; align-items:center; justify-content:center; z-index:100; opacity:0; pointer-events:none; transition:opacity 0.2s; }
   .modal-overlay.open { opacity:1; pointer-events:all; }
@@ -501,6 +688,7 @@
       </button>
     </div>
     <div id="momentosList"></div>
+    <div class="sidebar-action-row">
     <button class="add-momento" onclick="abrirModalMomento()">
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Novo momento
@@ -509,6 +697,7 @@
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       Playlist
     </button>
+    </div>
     <input type="file" id="folderInput" webkitdirectory multiple style="display:none" onchange="abrirPasta(this.files)">
   </aside>
 
@@ -536,6 +725,18 @@
     </div>
   </div>
 
+  <!-- MOBILE TABS (shown only on mobile via JS) -->
+  <div class="mobile-deck-tabs" id="mobileDeckTabs" style="display:none">
+    <button class="mobile-tab-btn tab-active-a" id="mTabA" onclick="switchMobileTab('A')">
+      <div class="deck-dot" id="mDotA"></div>DECK A
+    </button>
+    <button class="mobile-tab-btn" id="mTabB" onclick="switchMobileTab('B')">
+      <div class="deck-dot" id="mDotB"></div>DECK B
+    </button>
+  </div>
+
+  <!-- MOBILE DECK A WRAP -->
+  <div class="mobile-deck-wrap active" id="mWrapA">
   <!-- DECK A BODY (row 3, col 2) -->
   <div class="deck deck-col-a selected" id="deckA">`
     <div class="player">
@@ -588,6 +789,10 @@
     </div>
   </div>
 
+  </div><!-- /mWrapA -->
+
+  <!-- MOBILE DECK B WRAP -->
+  <div class="mobile-deck-wrap" id="mWrapB">
   <!-- DECK B BODY (row 3, col 3) -->
   <div class="deck deck-col-b" id="deckB">`
     <div class="player">
@@ -639,7 +844,8 @@
       <div class="track-list" id="tListB"></div>
     </div>
   </div>
-</div>
+  </div><!-- /mWrapB -->
+</div><!-- /app-body -->
 
 <!-- MODAL NOVO MOMENTO -->
 <div class="modal-overlay" id="modalOverlay">
@@ -730,10 +936,10 @@ async function buildWF(url, deckId){
     if(deckId)drawWF(document.getElementById('wfCanvas'+deckId),url,D[deckId]?.audio()?.currentTime||0,D[deckId]?.audio()?.duration||0,D[deckId]?.isPlaying);
     return wfCache[url];
   }
-  // Mostra "Analisando…"
   if(deckId){const ld=document.getElementById('wfLoad'+deckId);if(ld)ld.classList.add('visible');}
   const attempt=async()=>{
-    const buf=await(await fetch(url)).arrayBuffer();
+    const buf=await getBufFromUrl(url);
+    if(!buf)throw new Error('sem buffer');
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
     const dec=await ctx.decodeAudioData(buf);ctx.close();
     const ch=dec.getChannelData(0),peaks=new Float32Array(WF_BARS),step=Math.floor(ch.length/WF_BARS);
@@ -742,10 +948,17 @@ async function buildWF(url, deckId){
     const mx2=Math.max(...peaks,0.001);for(let i=0;i<WF_BARS;i++)peaks[i]/=mx2;
     return peaks;
   };
+  // Tenta até 6 vezes com delays crescentes, abortando se a faixa mudar
+  const delays=[500,1500,3000,5000,10000,15000];
   let peaks=null;
-  for(let t=0;t<3;t++){
+  for(let t=0;t<delays.length;t++){
     try{peaks=await attempt();break;}
-    catch(e){if(t<2)await new Promise(r=>setTimeout(r,800*(t+1)));}
+    catch(e){
+      if(t<delays.length-1){
+        await new Promise(r=>setTimeout(r,delays[t]));
+        if(deckId&&D[deckId]?.currentUrl!==url)break;
+      }
+    }
   }
   if(deckId){const ld=document.getElementById('wfLoad'+deckId);if(ld)ld.classList.remove('visible');}
   if(peaks){
@@ -1198,6 +1411,7 @@ class Deck{
     document.getElementById('dStatus'+this.id).classList.toggle('playing',p);
     document.getElementById('dStatusTxt'+this.id).textContent=p?'Tocando':'Parado';
     renderMomentos();
+    if(typeof _updateMobileTabs==='function') _updateMobileTabs();
   }
 }
 
@@ -1295,7 +1509,7 @@ function renderMomentos(){
     const tocB=D.B.momentoTocando===m.id&&D.B.isPlaying;
     const selA=D.A.momentoAtivo===m.id;
     const selB=D.B.momentoAtivo===m.id;
-    btn.className='momento-btn'+(selA&&deckAtivo==='A'?' active-a':selB&&deckAtivo==='B'?' active-b':'');
+    btn.className='momento-btn'+(deckAtivo==='A'&&selA?' active-a':deckAtivo==='B'&&selB?' active-b':'');
     btn.draggable=true;
     const badges=(tocA?'<span class="deck-badge deck-badge-a">A</span>':'')+(tocB?'<span class="deck-badge deck-badge-b">B</span>':'');
     const iconClass='momento-icon'+(tocA?' is-playing-a':tocB?' is-playing-b':'');
@@ -1754,6 +1968,98 @@ self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r
   document.getElementById('headerDate').innerHTML=
     `<span class="header-date-main">${d} ${m} ${y}</span><span class="header-date-sub">${dia}</span>`;
 })();
+
+// =====================
+//  MOBILE RESPONSIVE
+// =====================
+let _mobileTab = 'A';
+
+// Swipe horizontal para alternar decks no mobile
+(function(){
+  let _swipeStartX=null, _swipeStartY=null;
+  const SWIPE_MIN=60, SWIPE_MAX_Y=80;
+  function onTouchStart(e){
+    if(window.innerWidth>700)return;
+    // Só ativa swipe dentro dos wraps dos decks (abaixo das abas)
+    if(!e.target.closest('#mWrapA')&&!e.target.closest('#mWrapB'))return;
+    _swipeStartX=e.touches[0].clientX;
+    _swipeStartY=e.touches[0].clientY;
+  }
+  function onTouchEnd(e){
+    if(window.innerWidth>700||_swipeStartX===null)return;
+    const dx=e.changedTouches[0].clientX-_swipeStartX;
+    const dy=Math.abs(e.changedTouches[0].clientY-_swipeStartY);
+    _swipeStartX=null;_swipeStartY=null;
+    if(Math.abs(dx)<SWIPE_MIN||dy>SWIPE_MAX_Y)return;
+    // Swipe direita→esquerda: vai para B; esquerda→direita: vai para A
+    if(dx<0&&_mobileTab==='A')switchMobileTab('B');
+    else if(dx>0&&_mobileTab==='B')switchMobileTab('A');
+  }
+  document.addEventListener('touchstart',onTouchStart,{passive:true});
+  document.addEventListener('touchend',onTouchEnd,{passive:true});
+})();
+
+function switchMobileTab(deck) {
+  _mobileTab = deck;
+  deckAtivo = deck; // sincroniza deckAtivo com a aba mobile
+  const wA = document.getElementById('mWrapA');
+  const wB = document.getElementById('mWrapB');
+  const tA = document.getElementById('mTabA');
+  const tB = document.getElementById('mTabB');
+  if (deck === 'A') {
+    wA.classList.add('active'); wB.classList.remove('active');
+    tA.className = 'mobile-tab-btn tab-active-a' + (D.A.isPlaying ? ' playing-a' : '');
+    tB.className = 'mobile-tab-btn' + (D.B.isPlaying ? ' playing-b' : '');
+  } else {
+    wB.classList.add('active'); wA.classList.remove('active');
+    tB.className = 'mobile-tab-btn tab-active-b' + (D.B.isPlaying ? ' playing-b' : '');
+    tA.className = 'mobile-tab-btn' + (D.A.isPlaying ? ' playing-a' : '');
+  }
+  renderMomentos(); // atualiza cor dos momentos
+}
+
+function _updateMobileTabs() {
+  if (window.innerWidth > 700) return;
+  const tA = document.getElementById('mTabA');
+  const tB = document.getElementById('mTabB');
+  if (!tA || !tB) return;
+  const playingA = D && D.A && D.A.isPlaying;
+  const playingB = D && D.B && D.B.isPlaying;
+  if (_mobileTab === 'A') {
+    tA.className = 'mobile-tab-btn tab-active-a' + (playingA ? ' playing-a' : '');
+    tB.className = 'mobile-tab-btn' + (playingB ? ' playing-b' : '');
+  } else {
+    tB.className = 'mobile-tab-btn tab-active-b' + (playingB ? ' playing-b' : '');
+    tA.className = 'mobile-tab-btn' + (playingA ? ' playing-a' : '');
+  }
+}
+
+function _applyMobileLayout() {
+  const isMobile = window.innerWidth <= 700;
+  const tabs = document.getElementById('mobileDeckTabs');
+  const appBody = document.querySelector('.app-body');
+  if (!tabs || !appBody) return;
+  tabs.style.display = isMobile ? 'flex' : 'none';
+  if (isMobile) {
+    appBody.style.overflowY = 'auto';
+    appBody.style.overflowX = 'hidden';
+    // Move tabs inside app-body if not already there
+    if (tabs.parentElement !== appBody) {
+      const xfader = appBody.querySelector('.xfader-bar-h');
+      if (xfader) appBody.insertBefore(tabs, xfader.nextSibling);
+    }
+    // Move wrappers inside app-body
+    ['mWrapA','mWrapB'].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el && el.parentElement !== appBody) appBody.appendChild(el);
+    });
+  }
+}
+
+window.addEventListener('resize', _applyMobileLayout);
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(_applyMobileLayout, 50);
+});
 
 init();
 </script>
