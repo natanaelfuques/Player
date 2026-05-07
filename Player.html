@@ -540,30 +540,14 @@
     /* Controls: duas linhas no mobile */
     .controls {
       flex-wrap:nowrap;
-      gap:4px;
+      gap:6px;
       align-items:center;
+      justify-content:center;
     }
-    /* Volume + Fade + Silêncio: tudo na mesma linha à direita dos botões */
-    .volume-wrap {
-      margin-left:auto;
-      margin-top:0;
-      width:auto;
-      gap:3px;
-      flex-shrink:1;
-    }
-    .fade-wrap {
-      margin-left:0;
-      margin-top:0;
-      padding-left:6px;
-      border-left:1px solid var(--border);
-      gap:3px;
-    }
-    .fade-label { font-size:9px; }
-    input[type=range]#volA, input[type=range]#volB { width:52px; }
-    #fadeA, #fadeB { width:36px !important; }
-    /* Botões menores no mobile */
-    .ctrl-btn { width:26px; height:26px; border-radius:6px; }
-    .play-btn { width:36px; height:36px; border-radius:9px; }
+    .volume-wrap { display:none; }
+    .fade-wrap { display:none; }
+    .ctrl-btn { width:34px; height:34px; border-radius:8px; }
+    .play-btn { width:46px; height:46px; border-radius:12px; }
 
     /* Playlist area */
     .playlist-area { padding:8px 12px; }
